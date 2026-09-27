@@ -7,7 +7,7 @@
 
  const config=window.CHEBANOV_SITE||{};
  const SDK_URL='https://cdn.qtickets.tech/openapi.js';
- const VERSION='2026-09-17-native-2-metrika-click';
+ const VERSION='2026-09-28-native-3-promo-qcode';
  const originals=new WeakMap();
  const byEvent=new Map();
  let sdkReady=false,sdkLoading=false,sdkError='',pollTimer=0;
@@ -25,6 +25,8 @@
 
  const ticketURL=link=>{
   const url=new URL(originals.get(link));
+  const promo=new URLSearchParams(location.search).get('promo');
+  if(promo&&promo.trim())url.searchParams.set('qcode',promo.trim());
   const source=sourceNow();
   if(source){
    url.searchParams.set('utm_source',source.source);
@@ -70,6 +72,8 @@
     const link=byEvent.get(String(request.event_id));
     if(!link)return;
     const url=ticketURL(link);
+    const qcode=url.searchParams.get('qcode');
+    if(qcode)request.qcode=qcode;
     Object.keys(request).filter(key=>key.startsWith('utm_')).forEach(key=>delete request[key]);
     url.searchParams.forEach((value,key)=>{if(key.startsWith('utm_'))request[key]=value});
     request.base_color='f0a33e';
